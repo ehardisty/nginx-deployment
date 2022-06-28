@@ -1,0 +1,20 @@
+connector:
+  name: nginx-deployment
+  identifier: nginxdeployment
+  description: Repository containing overrides for nginx deployment
+  orgIdentifier: default
+  projectIdentifier: onboardingengineertechtest
+  type: Github
+  spec:
+    url: https://github.com/ehardisty/nginx-overrides
+    authentication:
+      type: Http
+      spec:
+        type: UsernameToken
+        spec:
+          username: ehardisty
+          tokenRef: githubpat
+    delegateSelectors:
+    - rancher-local-desktop
+    executeOnDelegate: true
+    type: Repo
