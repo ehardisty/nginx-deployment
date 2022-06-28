@@ -1,0 +1,11 @@
+connector:
+  name: bitnami-helm-repo
+  identifier: bitnamihelmrepo
+  description:
+  orgIdentifier: default
+  projectIdentifier: onboardingengineertechtest
+  type: HttpHelmRepo
+  spec:
+    helmRepoUrl: https://charts.bitnami.com/bitnami
+    auth:
+      type: Anonymous
