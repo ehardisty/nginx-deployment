@@ -1,0 +1,12 @@
+connector:
+  name: rancher desktop connector
+  identifier: rancher_desktop_connector
+  description:
+  orgIdentifier: default
+  projectIdentifier: onboardingengineertechtest
+  type: K8sCluster
+  spec:
+    credential:
+      type: InheritFromDelegate
+    delegateSelectors:
+    - rancher-local-desktop
