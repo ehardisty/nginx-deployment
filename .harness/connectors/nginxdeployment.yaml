@@ -16,5 +16,6 @@ connector:
           tokenRef: githubpat
     delegateSelectors:
     - rancher-local-desktop
+    - demo
     executeOnDelegate: true
     type: Repo
