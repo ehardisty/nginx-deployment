@@ -1,6 +1,6 @@
 pipeline:
     name: Deploy Nginx
-    identifier: Deploy_Nginx
+    identier: Deploy_Nginx
     projectIdentifier: onboardingengineertechtest
     orgIdentifier: default
     description: Pipeline to deploy Nginx into local Rancher Desktop kubernetes cluster
