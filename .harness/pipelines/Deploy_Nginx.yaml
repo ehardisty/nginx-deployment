@@ -1,253 +1,254 @@
 pipeline:
-    name: Deploy Nginx
-    identifier: Deploy_Nginx
-    projectIdentifier: onboardingengineertechtest
-    orgIdentifier: default
-    description: Pipeline to deploy Nginx into local Rancher Desktop kubernetes tags:
-        kubernetes: ""
-        rancher desktop: ""
-        nginx: ""
-    stages:
-        - stage:
-              name: Deploy Nginx to dev
-              identifier: Deploy_Nginx_to_dev
-              description: ""
-              type: Deployment
+  name: Deploy Nginx
+  identifier: Deploy_Nginx
+  projectIdentifier: onboardingengineertechtest
+  orgIdentifier: default
+  description: Pipeline to deploy Nginx into local Rancher Desktop kubernetes
+  tags:
+    kubernetes: ""
+    rancher desktop: ""
+    nginx: ""
+  stages:
+    - stage:
+        name: Deploy Nginx to dev
+        identifier: Deploy_Nginx_to_dev
+        description: ""
+        type: Deployment
+        spec:
+          serviceConfig:
+            serviceRef: nginx
+            serviceDefinition:
               spec:
-                  serviceConfig:
-                      serviceRef: nginx
-                      serviceDefinition:
+                variables: []
+                manifests:
+                  - manifest:
+                      identifier: nginx
+                      type: HelmChart
+                      spec:
+                        store:
+                          type: Http
                           spec:
-                              variables: []
-                              manifests:
-                                  - manifest:
-                                        identifier: nginx
-                                        type: HelmChart
-                                        spec:
-                                            store:
-                                                type: Http
-                                                spec:
-                                                    connectorRef: bitnamihelmrepo
-                                            chartName: nginx
-                                            chartVersion: <+pipeline.variables.nginxChartVersion>
-                                            helmVersion: V3
-                                            skipResourceVersioning: false
-                                  - manifest:
-                                        identifier: nginx-overrides
-                                        type: Values
-                                        spec:
-                                            store:
-                                                type: Github
-                                                spec:
-                                                    connectorRef: nginxdeployment
-                                                    gitFetchType: Branch
-                                                    paths:
-                                                        - values.yaml
-                                                    branch: main
-                          type: Kubernetes
-                  infrastructure:
-                      environmentRef: dev
-                      infrastructureDefinition:
-                          type: KubernetesDirect
+                            connectorRef: bitnamihelmrepo
+                        chartName: nginx
+                        chartVersion: <+pipeline.variables.nginxChartVersion>
+                        helmVersion: V3
+                        skipResourceVersioning: false
+                  - manifest:
+                      identifier: nginx-overrides
+                      type: Values
+                      spec:
+                        store:
+                          type: Github
                           spec:
-                              connectorRef: rancher_desktop_connector
-                              namespace: dev
-                              releaseName: release-<+INFRA_KEY>
-                      allowSimultaneousDeployments: false
-                  execution:
-                      steps:
-                          - step:
-                                name: dev deploy
-                                identifier: dev_deploy
-                                type: K8sRollingDeploy
-                                timeout: 10m
-                                spec:
-                                    skipDryRun: false
-                                failureStrategies: []
-                      rollbackSteps:
-                          - step:
-                                name: Rollback Rollout Deployment
-                                identifier: rollbackRolloutDeployment
-                                type: K8sRollingRollback
-                                timeout: 10m
-                                spec: {}
-              tags:
-                  dev: ""
-              failureStrategies:
-                  - onFailure:
-                        errors:
-                            - AllErrors
-                        action:
-                            type: StageRollback
-        - stage:
-              name: Deploy Nginx to Stage
-              identifier: Deploy_Nginx_to_Stage
-              description: ""
-              type: Deployment
+                            connectorRef: nginxdeployment
+                            gitFetchType: Branch
+                            paths:
+                              - values.yaml
+                            branch: main
+              type: Kubernetes
+          infrastructure:
+            environmentRef: dev
+            infrastructureDefinition:
+              type: KubernetesDirect
               spec:
-                  serviceConfig:
-                      serviceRef: nginx
-                      serviceDefinition:
-                          spec:
-                              variables: []
-                              manifests:
-                                  - manifest:
-                                        identifier: nginx
-                                        type: HelmChart
-                                        spec:
-                                            store:
-                                                type: Http
-                                                spec:
-                                                    connectorRef: bitnamihelmrepo
-                                            chartName: nginx
-                                            chartVersion: <+pipeline.variables.nginxChartVersion>
-                                            helmVersion: V3
-                                            skipResourceVersioning: false
-                                  - manifest:
-                                        identifier: nginx-overrides
-                                        type: Values
-                                        spec:
-                                            store:
-                                                type: Github
-                                                spec:
-                                                    connectorRef: nginxdeployment
-                                                    gitFetchType: Branch
-                                                    paths:
-                                                        - values.yaml
-                                                    branch: main
-                          type: Kubernetes
-                  infrastructure:
-                      environmentRef: stage
-                      infrastructureDefinition:
-                          type: KubernetesDirect
-                          spec:
-                              connectorRef: rancher_desktop_connector
-                              namespace: stage
-                              releaseName: release-<+INFRA_KEY>
-                      allowSimultaneousDeployments: false
-                  execution:
-                      steps:
-                          - step:
-                                name: Rollout Deployment
-                                identifier: rolloutDeployment
-                                type: K8sRollingDeploy
-                                timeout: 10m
-                                spec:
-                                    skipDryRun: false
-                      rollbackSteps:
-                          - step:
-                                name: Rollback Rollout Deployment
-                                identifier: rollbackRolloutDeployment
-                                type: K8sRollingRollback
-                                timeout: 10m
-                                spec: {}
-              tags: {}
-              failureStrategies:
-                  - onFailure:
-                        errors:
-                            - AllErrors
-                        action:
-                            type: StageRollback
-        - stage:
-              name: prod approval
-              identifier: prod_approval
-              description: Proceed to deploy to production environment?
-              type: Approval
+                connectorRef: rancher_desktop_connector
+                namespace: dev
+                releaseName: release-<+INFRA_KEY>
+            allowSimultaneousDeployments: false
+          execution:
+            steps:
+              - step:
+                  name: dev deploy
+                  identifier: dev_deploy
+                  type: K8sRollingDeploy
+                  timeout: 10m
+                  spec:
+                    skipDryRun: false
+                  failureStrategies: []
+            rollbackSteps:
+              - step:
+                  name: Rollback Rollout Deployment
+                  identifier: rollbackRolloutDeployment
+                  type: K8sRollingRollback
+                  timeout: 10m
+                  spec: {}
+        tags:
+          dev: ""
+        failureStrategies:
+          - onFailure:
+              errors:
+                - AllErrors
+              action:
+                type: StageRollback
+    - stage:
+        name: Deploy Nginx to Stage
+        identifier: Deploy_Nginx_to_Stage
+        description: ""
+        type: Deployment
+        spec:
+          serviceConfig:
+            serviceRef: nginx
+            serviceDefinition:
               spec:
-                  execution:
-                      steps:
-                          - step:
-                                name: prod approval
-                                identifier: prod_approval
-                                type: HarnessApproval
-                                timeout: 1d
-                                spec:
-                                    approvalMessage: |-
-                                        Please review the following information
-                                        and approve the pipeline progression
-                                    includePipelineExecutionHistory: true
-                                    approvers:
-                                        minimumCount: 1
-                                        disallowPipelineExecutor: false
-                                        userGroups:
-                                            - account.prod_approver
-                                    approverInputs: []
-              tags: {}
-        - stage:
-              name: Deploy Nginx to prod
-              identifier: Deploy_Nginx_to_prod
-              description: ""
-              type: Deployment
+                variables: []
+                manifests:
+                  - manifest:
+                      identifier: nginx
+                      type: HelmChart
+                      spec:
+                        store:
+                          type: Http
+                          spec:
+                            connectorRef: bitnamihelmrepo
+                        chartName: nginx
+                        chartVersion: <+pipeline.variables.nginxChartVersion>
+                        helmVersion: V3
+                        skipResourceVersioning: false
+                  - manifest:
+                      identifier: nginx-overrides
+                      type: Values
+                      spec:
+                        store:
+                          type: Github
+                          spec:
+                            connectorRef: nginxdeployment
+                            gitFetchType: Branch
+                            paths:
+                              - values.yaml
+                            branch: main
+              type: Kubernetes
+          infrastructure:
+            environmentRef: stage
+            infrastructureDefinition:
+              type: KubernetesDirect
               spec:
-                  serviceConfig:
-                      serviceRef: nginx
-                      serviceDefinition:
+                connectorRef: rancher_desktop_connector
+                namespace: stage
+                releaseName: release-<+INFRA_KEY>
+            allowSimultaneousDeployments: false
+          execution:
+            steps:
+              - step:
+                  name: Rollout Deployment
+                  identifier: rolloutDeployment
+                  type: K8sRollingDeploy
+                  timeout: 10m
+                  spec:
+                    skipDryRun: false
+            rollbackSteps:
+              - step:
+                  name: Rollback Rollout Deployment
+                  identifier: rollbackRolloutDeployment
+                  type: K8sRollingRollback
+                  timeout: 10m
+                  spec: {}
+        tags: {}
+        failureStrategies:
+          - onFailure:
+              errors:
+                - AllErrors
+              action:
+                type: StageRollback
+    - stage:
+        name: prod approval
+        identifier: prod_approval
+        description: Proceed to deploy to production environment?
+        type: Approval
+        spec:
+          execution:
+            steps:
+              - step:
+                  name: prod approval
+                  identifier: prod_approval
+                  type: HarnessApproval
+                  timeout: 1d
+                  spec:
+                    approvalMessage: |-
+                      Please review the following information
+                      and approve the pipeline progression
+                    includePipelineExecutionHistory: true
+                    approvers:
+                      minimumCount: 1
+                      disallowPipelineExecutor: false
+                      userGroups:
+                        - account.prod_approver
+                    approverInputs: []
+        tags: {}
+    - stage:
+        name: Deploy Nginx to prod
+        identifier: Deploy_Nginx_to_prod
+        description: ""
+        type: Deployment
+        spec:
+          serviceConfig:
+            serviceRef: nginx
+            serviceDefinition:
+              spec:
+                variables: []
+                manifests:
+                  - manifest:
+                      identifier: nginx
+                      type: HelmChart
+                      spec:
+                        store:
+                          type: Http
                           spec:
-                              variables: []
-                              manifests:
-                                  - manifest:
-                                        identifier: nginx
-                                        type: HelmChart
-                                        spec:
-                                            store:
-                                                type: Http
-                                                spec:
-                                                    connectorRef: bitnamihelmrepo
-                                            chartName: nginx
-                                            chartVersion: <+pipeline.variables.nginxChartVersion>
-                                            helmVersion: V3
-                                            skipResourceVersioning: false
-                                  - manifest:
-                                        identifier: nginx-overrides
-                                        type: Values
-                                        spec:
-                                            store:
-                                                type: Github
-                                                spec:
-                                                    connectorRef: nginxdeployment
-                                                    gitFetchType: Branch
-                                                    paths:
-                                                        - values.yaml
-                                                    branch: main
-                          type: Kubernetes
-                  infrastructure:
-                      environmentRef: prod
-                      infrastructureDefinition:
-                          type: KubernetesDirect
+                            connectorRef: bitnamihelmrepo
+                        chartName: nginx
+                        chartVersion: <+pipeline.variables.nginxChartVersion>
+                        helmVersion: V3
+                        skipResourceVersioning: false
+                  - manifest:
+                      identifier: nginx-overrides
+                      type: Values
+                      spec:
+                        store:
+                          type: Github
                           spec:
-                              connectorRef: rancher_desktop_connector
-                              namespace: prod
-                              releaseName: release-<+INFRA_KEY>
-                      allowSimultaneousDeployments: false
-                  execution:
-                      steps:
-                          - step:
-                                name: Rollout Deployment
-                                identifier: rolloutDeployment
-                                type: K8sRollingDeploy
-                                timeout: 10m
-                                spec:
-                                    skipDryRun: false
-                      rollbackSteps:
-                          - step:
-                                name: Rollback Rollout Deployment
-                                identifier: rollbackRolloutDeployment
-                                type: K8sRollingRollback
-                                timeout: 10m
-                                spec: {}
-              tags: {}
-              failureStrategies:
-                  - onFailure:
-                        errors:
-                            - AllErrors
-                        action:
-                            type: StageRollback
-    variables:
-        - name: nginxChartVersion
-          type: String
-          default: 12.0.5
-          value: <+input>
-        - name: nginxImageVersion
-          type: String
-          default: 1.22.0
-          value: <+input>
+                            connectorRef: nginxdeployment
+                            gitFetchType: Branch
+                            paths:
+                              - values.yaml
+                            branch: main
+              type: Kubernetes
+          infrastructure:
+            environmentRef: prod
+            infrastructureDefinition:
+              type: KubernetesDirect
+              spec:
+                connectorRef: rancher_desktop_connector
+                namespace: prod
+                releaseName: release-<+INFRA_KEY>
+            allowSimultaneousDeployments: false
+          execution:
+            steps:
+              - step:
+                  name: Rollout Deployment
+                  identifier: rolloutDeployment
+                  type: K8sRollingDeploy
+                  timeout: 10m
+                  spec:
+                    skipDryRun: false
+            rollbackSteps:
+              - step:
+                  name: Rollback Rollout Deployment
+                  identifier: rollbackRolloutDeployment
+                  type: K8sRollingRollback
+                  timeout: 10m
+                  spec: {}
+        tags: {}
+        failureStrategies:
+          - onFailure:
+              errors:
+                - AllErrors
+              action:
+                type: StageRollback
+  variables:
+    - name: nginxChartVersion
+      type: String
+      default: 12.0.5
+      value: <+input>
+    - name: nginxImageVersion
+      type: String
+      default: 1.22.0
+      value: <+input>
