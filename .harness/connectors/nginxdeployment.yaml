@@ -14,8 +14,5 @@ connector:
         spec:
           username: ehardisty
           tokenRef: githubpat
-    delegateSelectors:
-    - rancher-local-desktop
-    - demo
-    executeOnDelegate: true
+    executeOnDelegate: false
     type: Repo
